@@ -1,10 +1,4 @@
-/*
-  ==============================================================================
 
-    This file contains the basic framework code for a JUCE plugin processor.
-
-  ==============================================================================
-*/
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
@@ -143,10 +137,13 @@ bool OneTouchChorusAudioProcessor::isBusesLayoutSupported (const BusesLayout& la
 
 void OneTouchChorusAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
+
     juce::ScopedNoDenormals noDenormals;
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
     auto pbChorus = chorusParameter->load();
+    auto leftChorusFrequency = 5;
+    auto rightChorusFrequency = 5;
 
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
@@ -160,8 +157,8 @@ void OneTouchChorusAudioProcessor::processBlock (juce::AudioBuffer<float>& buffe
             smoothedChorusValues[channel].setTargetValue(pbChorus);
             pbChorus = smoothedChorusValues[channel].getNextValue();
             
-            chorusLineLeft.setParams(5, pbChorus, pbChorus/100);
-            chorusLineRight.setParams(10, pbChorus, pbChorus/100);
+            chorusLineLeft.setParams(leftChorusFrequency, pbChorus, pbChorus/100);
+            chorusLineRight.setParams(rightChorusFrequency, pbChorus, pbChorus/100);
             
             if(channel == 0){
             channelData[sample] = chorusLineLeft.processSample(channelData[sample], channel);
